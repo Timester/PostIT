@@ -1,0 +1,91 @@
+body{
+    margin-top: 80px;
+    background-image: url("../img/stars.jpg");
+}
+
+label{
+    display: inline-block;
+    width: 130px;
+}
+
+#sendPost #text{
+    height: 100px;
+    width: 100%;
+    resize: none;
+    padding: 5px;
+}
+
+.postBox{
+
+    padding: 10px 10px 10px 10px;
+    color: inherit;
+    background-color: #eeeeee;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+#leftboxes{
+    float: left;
+    width: 25%;
+    min-width: 128px;
+}
+
+.post{
+    float: right;
+    width: 72%;
+}
+
+.post img{
+    height: 48px;
+    width: 48px;
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.post .postcontent{
+    display: inline-block;
+}
+
+.post .postcontent a{
+    font-weight: bold;
+}
+
+.smallgrey{
+    font-size: 85%;
+    color: #7d7d7d;
+    font-style: italic;
+}
+
+.profilebox img{
+    height: 96px;
+    width: 96px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+
+}
+
+.profilebox h2{
+    display: inline;
+}
+
+.formrow{
+    height: 40px;
+}
+
+.submitpost{
+    margin: 0;
+}
+
+.followbox{
+    float: right;
+    width: 72%;
+}
+
+.followbox img{
+    height: 96px;
+    width: 96px;
+    margin-bottom: 10px;
+}
+
+.followbox a{
+    font-weight: bold;
+}
