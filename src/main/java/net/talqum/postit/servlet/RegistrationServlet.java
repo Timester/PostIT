@@ -32,6 +32,7 @@ public class RegistrationServlet extends HttpServlet {
      * the web application directory.
      */
     private static final String SAVE_DIR = "img/profile";
+    private static final String DEFAULT_PIC = "avatar.png";
 
     private RedisPersistence persistenceBean = new RedisPersistenceDefault();
 
@@ -39,26 +40,17 @@ public class RegistrationServlet extends HttpServlet {
         String name = request.getParameter("name");
         String password = request.getParameter("password");
 
-        // gets absolute path of the web application
         String appPath = request.getServletContext().getRealPath("");
-        // constructs path of the directory to save uploaded file
         String savePath = appPath + File.separator + SAVE_DIR;
 
-        // creates the save directory if it does not exists
         File fileSaveDir = new File(savePath);
         if (!fileSaveDir.exists()) {
             fileSaveDir.mkdir();
         }
 
-        String fileName = "gw2.jpeg";                   // default pic
         Collection<Part> parts = request.getParts();
-        for (Part part : parts) {
-            if(part.getName().equals("file")) {
-                // fileName = name; //extractFileName(part);
-                fileName = part.getSubmittedFileName();
-                part.write(savePath + File.separator + fileName);
-            }
-        }
+
+        String fileName = saveSubmittedImage(parts, savePath, name);
 
         User u = new User();
         u.setName(name);
@@ -71,6 +63,19 @@ public class RegistrationServlet extends HttpServlet {
         request.getSession().setAttribute("user", u);
 
         response.sendRedirect("timeline?uid=" + u.getId() + "&show=all");
+    }
+
+    private String saveSubmittedImage(Collection<Part> parts, String savePath, String name) throws IOException{
+        String fileName = DEFAULT_PIC;
+        for (Part part : parts) {
+            if(part.getName().equals("file")) {
+                if(!part.getSubmittedFileName().equals("")) {
+                    fileName = name + part.getSubmittedFileName();
+                }
+                part.write(savePath + File.separator + fileName);
+            }
+        }
+        return fileName;
     }
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

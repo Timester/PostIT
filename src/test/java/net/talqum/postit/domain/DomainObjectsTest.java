@@ -3,8 +3,6 @@ package net.talqum.postit.domain;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,16 +38,5 @@ public class DomainObjectsTest {
         assertEquals(p.getCreated(), other.getCreated());
         assertEquals(p.getText(), other.getText());
         assertEquals(p.getOwnerId(), other.getOwnerId());
-    }
-
-    @Test
-    public void testLongToString(){
-        Long id = 1L;
-        System.out.println(id.toString());
-    }
-
-    @Test
-    public void testBool(){
-        assertEquals(Boolean.valueOf("true"), true);
     }
 }
