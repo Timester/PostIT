@@ -23,7 +23,6 @@ public class DispatchServlet extends HttpServlet {
         if(request.getRequestURL().toString().contains("about")){
             RequestDispatcher rq = request.getRequestDispatcher("/WEB-INF/about.jsp");
             rq.forward(request, response);
-            return;
         }
         else {
             RequestDispatcher rq = request.getRequestDispatcher("/WEB-INF/index.jsp");

@@ -59,7 +59,7 @@ public class TimelineServlet extends HttpServlet {
             Long followersCount;
             Long followingsCount;
 
-            if(uid == current.getId()){                                             // MY TIMELINE
+            if(uid.equals(current.getId())){                                             // MY TIMELINE
                 request.setAttribute("isMe", Boolean.TRUE);
 
                 if(postsS != null && postsS.equals("me")){
@@ -123,14 +123,14 @@ public class TimelineServlet extends HttpServlet {
      * @return true is the current user is following the currently viewed user
      */
     private boolean isFollowed(User user, Long uid){
-        if(user.getId()==uid){
+        if(user.getId().equals(uid)){
             return false;
         }
 
         List<User> following = persistenceBean.getFollowing(user.getId());
 
         for(User u : following){
-            if(u.getId() == uid){
+            if(u.getId().equals(uid)){
                 return true;
             }
         }

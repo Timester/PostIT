@@ -43,15 +43,17 @@ public class AuthServlet extends HttpServlet {
 
         RequestDispatcher rq;
 
-        if(action.equals("login")){
-            rq = request.getRequestDispatcher("/WEB-INF/login.jsp");
-        }
-        else if(action.equals("logout")){
-            request.getSession().invalidate();
-            rq = request.getRequestDispatcher("/WEB-INF/index.jsp");
-        }
-        else{
-            rq = request.getRequestDispatcher("/WEB-INF/index.jsp");
+        switch (action) {
+            case "login":
+                rq = request.getRequestDispatcher("/WEB-INF/login.jsp");
+                break;
+            case "logout":
+                request.getSession().invalidate();
+                rq = request.getRequestDispatcher("/WEB-INF/index.jsp");
+                break;
+            default:
+                rq = request.getRequestDispatcher("/WEB-INF/index.jsp");
+                break;
         }
 
         rq.forward(request, response);

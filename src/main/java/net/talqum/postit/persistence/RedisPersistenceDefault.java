@@ -238,7 +238,7 @@ public class RedisPersistenceDefault implements RedisPersistence {
         try {
             List<String> postIDs = jedis.lrange(RedisConstants.UID + ":" + userID + ":" + RedisConstants.POSTS, start, start + count);
 
-            long[] postIDsL = postIDs.stream().mapToLong(e -> Long.parseLong(e)).toArray();
+            long[] postIDsL = postIDs.stream().mapToLong(Long::parseLong).toArray();
 
             List<Post> posts = new ArrayList<>();
 
@@ -268,7 +268,7 @@ public class RedisPersistenceDefault implements RedisPersistence {
         try {
             List<String> postIDs = jedis.lrange(RedisConstants.UID + ":" + userID + ":" + RedisConstants.USERONLYPOST, start, start + count);
 
-            long[] postIDsL = postIDs.stream().mapToLong(e -> Long.parseLong(e)).toArray();
+            long[] postIDsL = postIDs.stream().mapToLong(Long::parseLong).toArray();
 
             List<Post> posts = new ArrayList<>();
 
@@ -298,7 +298,7 @@ public class RedisPersistenceDefault implements RedisPersistence {
         try {
             List<String> postIDs = jedis.lrange(RedisConstants.GLOBAL_TIMELINE, start, start + count);
 
-            long[] postIDsL = postIDs.stream().mapToLong(e -> Long.parseLong(e)).toArray();
+            long[] postIDsL = postIDs.stream().mapToLong(Long::parseLong).toArray();
 
             List<Post> posts = new ArrayList<>();
 
@@ -328,7 +328,7 @@ public class RedisPersistenceDefault implements RedisPersistence {
         try {
             Set<String> followerIDs = jedis.smembers(RedisConstants.UID + ":" + uid + ":" + RedisConstants.FOLLOWERS);
 
-            long[] followerIDsL = followerIDs.stream().mapToLong(e -> Long.parseLong(e)).toArray();
+            long[] followerIDsL = followerIDs.stream().mapToLong(Long::parseLong).toArray();
 
             List<User> followers = new ArrayList<>();
 
@@ -358,7 +358,7 @@ public class RedisPersistenceDefault implements RedisPersistence {
         try {
             Set<String> followingIDs = jedis.smembers(RedisConstants.UID + ":" + uid + ":" + RedisConstants.FOLLOWING);
 
-            long[] followingIDsL = followingIDs.stream().mapToLong(e -> Long.parseLong(e)).toArray();
+            long[] followingIDsL = followingIDs.stream().mapToLong(Long::parseLong).toArray();
 
             List<User> following = new ArrayList<>();
 
