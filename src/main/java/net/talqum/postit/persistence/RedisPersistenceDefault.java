@@ -30,8 +30,7 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
     @Override
     public boolean addUser(User u) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             String id = jedis.get(RedisConstants.USERNAME + ":" + u.getName() + ":" + RedisConstants.ID);
             if((id == null) || (id.equals(""))){
                 Long nextUid = jedis.incr(RedisConstants.GLOBAL_NEXT_UID);
@@ -55,56 +54,30 @@ public class RedisPersistenceDefault implements RedisPersistence {
                 return false;
             }
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             return false;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public User findUserById(Long uid) {
-        Jedis jedis = pool.getResource();
-        try {
+
+        try(Jedis jedis = pool.getResource()) {
             return getAndParseUserDataFromRedis(uid, jedis);
 
-        } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
+        } catch (JedisConnectionException e){
+            e.printStackTrace();
             return null;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public User findUserByName(String name) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             Long uid = Long.parseLong(jedis.get(RedisConstants.USERNAME + ":" + name + ":" + RedisConstants.ID));
 
             return getAndParseUserDataFromRedis(uid, jedis);
-        } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
+        } catch (JedisConnectionException e){
             return null;
-        }
-        catch (NumberFormatException ex){
-            return null;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
 
     }
@@ -125,8 +98,7 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
     @Override
     public boolean addPost(Post p) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             Long nextPid = jedis.incr(RedisConstants.GLOBAL_NEXT_PID);
 
             Set<String> followersIds = jedis.smembers(RedisConstants.UID + ":" + p.getOwnerId() + ":" + RedisConstants.FOLLOWERS);
@@ -144,22 +116,13 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
             return true;
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             return false;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public Post findPostById(Long pid) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             String postString = jedis.get(RedisConstants.POST + ":" + pid);
 
             Post p = Post.buildFromString(postString, pid);
@@ -168,15 +131,7 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
             return p;
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             return null;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
@@ -195,47 +150,28 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
     @Override
     public void addFollowing(User u, Long uidFollowing){
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             Transaction tr = jedis.multi();
             tr.sadd(RedisConstants.UID + ":" + uidFollowing + ":" + RedisConstants.FOLLOWERS, u.getId().toString());
             tr.sadd(RedisConstants.UID + ":" + u.getId().toString() + ":" + RedisConstants.FOLLOWING, uidFollowing.toString());
             tr.exec();
-        } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public void removeFollowing(User u, Long uidFollowing){
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             Transaction tr = jedis.multi();
             tr.srem(RedisConstants.UID + ":" + uidFollowing + ":" + RedisConstants.FOLLOWERS, u.getId().toString());
             tr.srem(RedisConstants.UID + ":" + u.getId().toString() + ":" + RedisConstants.FOLLOWING,
                        uidFollowing.toString());
             tr.exec();
-        } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public List<Post> getWallPosts(Long userID, int start, int count) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             List<String> postIDs = jedis.lrange(RedisConstants.UID + ":" + userID + ":" + RedisConstants.POSTS, start, start + count);
 
             long[] postIDsL = postIDs.stream().mapToLong(Long::parseLong).toArray();
@@ -251,21 +187,13 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
             return posts;
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
             return new ArrayList<>();
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public List<Post> getUserPosts(Long userID, int start, int count) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             List<String> postIDs = jedis.lrange(RedisConstants.UID + ":" + userID + ":" + RedisConstants.USERONLYPOST, start, start + count);
 
             long[] postIDsL = postIDs.stream().mapToLong(Long::parseLong).toArray();
@@ -281,21 +209,13 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
             return posts;
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
             return new ArrayList<>();
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public List<Post> getGlobalPosts(int start, int count) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             List<String> postIDs = jedis.lrange(RedisConstants.GLOBAL_TIMELINE, start, start + count);
 
             long[] postIDsL = postIDs.stream().mapToLong(Long::parseLong).toArray();
@@ -311,21 +231,13 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
             return posts;
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-            return new ArrayList<>();
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
-        }
+           return new ArrayList<>();
+        } 
     }
 
     @Override
     public List<User> getFollowers(Long uid) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             Set<String> followerIDs = jedis.smembers(RedisConstants.UID + ":" + uid + ":" + RedisConstants.FOLLOWERS);
 
             long[] followerIDsL = followerIDs.stream().mapToLong(Long::parseLong).toArray();
@@ -341,21 +253,13 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
             return followers;
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
             return new ArrayList<>();
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
-        }
+        } 
     }
 
     @Override
     public List<User> getFollowing(Long uid) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             Set<String> followingIDs = jedis.smembers(RedisConstants.UID + ":" + uid + ":" + RedisConstants.FOLLOWING);
 
             long[] followingIDsL = followingIDs.stream().mapToLong(Long::parseLong).toArray();
@@ -371,21 +275,13 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
             return following;
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
             return new ArrayList<>();
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
-        }
+        } 
     }
 
     @Override
     public List<User> getlatestUsers() {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             SortingParams sp = new SortingParams();
             sp.get(RedisConstants.UID + ":*:" + RedisConstants.USERNAME);
             sp.desc();
@@ -402,92 +298,46 @@ public class RedisPersistenceDefault implements RedisPersistence {
 
             return users;
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             return new ArrayList<>();
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public Long getUserCount() {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             return jedis.scard(RedisConstants.GLOBAL_USERS);
 
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
-            return 0L;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
+           return 0L;
         }
     }
 
     @Override
     public Long getFollowersCount(Long uid) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             return jedis.scard(RedisConstants.UID + ":" + uid + ":" + RedisConstants.FOLLOWERS);
-
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             return 0L;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
-
     }
 
     @Override
     public Long getFollowingsCount(Long uid) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             return jedis.scard(RedisConstants.UID + ":" + uid + ":" + RedisConstants.FOLLOWING);
 
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             return 0L;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 
     @Override
     public Long getPostsCount(Long uid) {
-        Jedis jedis = pool.getResource();
-        try {
+        try(Jedis jedis = pool.getResource()) {
             return jedis.llen(RedisConstants.UID + ":" + uid + ":" + RedisConstants.USERONLYPOST);
 
         } catch (JedisConnectionException e) {
-            if (null != jedis) {
-                pool.returnBrokenResource(jedis);
-                jedis = null;
-            }
-
             return 0L;
-        } finally {
-            if (null != jedis)
-                pool.returnResource(jedis);
         }
     }
 }
